@@ -318,10 +318,6 @@ def make_velocity_env_cfg() -> ManagerBasedRlEnvCfg:
 
   terminations = {
     "time_out": TerminationTermCfg(func=mdp.time_out, time_out=True),
-    "fell_over": TerminationTermCfg(
-      func=mdp.bad_orientation,
-      params={"limit_angle": math.radians(70.0)},
-    ),
   }
 
   ##

@@ -57,22 +57,19 @@ def unitree_go1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     num_slots=1,
     track_air_time=True,
   )
-  nonfoot_ground_cfg = ContactSensorCfg(
-    name="nonfoot_ground_touch",
+  base_ground_cfg = ContactSensorCfg(
+    name="base_ground_touch",
     primary=ContactMatch(
       mode="geom",
       entity="robot",
-      # Grab all collision geoms...
-      pattern=r".*_collision\d*$",
-      # Except for the foot geoms.
-      exclude=tuple(geom_names),
+      pattern="trunk_collision",
     ),
     secondary=ContactMatch(mode="body", pattern="terrain"),
     fields=("found",),
     reduce="none",
     num_slots=1,
   )
-  sensors += (feet_ground_cfg, nonfoot_ground_cfg)
+  sensors += (feet_ground_cfg, base_ground_cfg)
   cfg.scene.sensors = sensors
 
   if cfg.scene.terrain is not None and cfg.scene.terrain.terrain_generator is not None:
@@ -130,7 +127,7 @@ def unitree_go1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
 
   cfg.terminations["illegal_contact"] = TerminationTermCfg(
     func=mdp.illegal_contact,
-    params={"sensor_name": nonfoot_ground_cfg.name},
+    params={"sensor_name": base_ground_cfg.name},
   )
 
   # Apply play mode overrides.
