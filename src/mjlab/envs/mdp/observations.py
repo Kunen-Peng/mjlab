@@ -104,3 +104,12 @@ def builtin_sensor(env: ManagerBasedRlEnv, sensor_name: str) -> torch.Tensor:
   sensor = env.scene[sensor_name]
   assert isinstance(sensor, BuiltinSensor)
   return sensor.data
+
+
+def height_scan(
+  env: ManagerBasedRlEnv, sensor_name: str, offset: float = 0.0
+) -> torch.Tensor:
+  from mjlab.sensor import RayCastSensor
+
+  sensor: RayCastSensor = env.scene[sensor_name]
+  return sensor.data.pos_w[:, 2].unsqueeze(1) - sensor.data.hit_pos_w[..., 2] - offset

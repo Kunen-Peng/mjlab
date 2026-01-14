@@ -138,6 +138,7 @@ ignore = ["B011"]
 pythonVersion = "3.10"
 ignore = ["./typings", "./src/mjlab/utils/lab_api", "./docs"]
 stubPath = "typings"
+extraPaths = ["../mujoco_warp"]
 
 [tool.ty.environment]
 extra-paths = ["typings", "../mujoco_warp"]

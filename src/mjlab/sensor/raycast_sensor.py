@@ -484,8 +484,6 @@ class RayCastSensor(Sensor[RayCastData]):
 
     self._raycast_graph: wp.Graph | None = None
     self._use_cuda_graph: bool = False
-
-    # BVH context for accelerated ray casting.
     self._bvh_ctx: mjwarp.RayBvhContext | None = None
 
   def edit_spec(
@@ -574,11 +572,12 @@ class RayCastSensor(Sensor[RayCastData]):
         if self.cfg.include_geom_groups is not None
         else None
       )
-      self._bvh_ctx = mjwarp.build_ray_bvh(
-        model.struct,  # type: ignore[attr-defined]
-        data.struct,  # type: ignore[attr-defined]
-        enabled_geom_groups=enabled_groups,
-      )
+      with wp.ScopedDevice(self._wp_device):
+        self._bvh_ctx = mjwarp.build_ray_bvh(
+          model.struct,  # type: ignore[attr-defined]
+          data.struct,  # type: ignore[attr-defined]
+          enabled_geom_groups=enabled_groups,
+        )
 
     assert self._wp_device is not None
     self._use_cuda_graph = self._wp_device.is_cuda and wp.is_mempool_enabled(
@@ -765,11 +764,11 @@ class RayCastSensor(Sensor[RayCastData]):
     pnt_torch.copy_(world_origins)
     vec_torch.copy_(world_rays)
 
-    if self._use_cuda_graph and self._raycast_graph is not None:
-      with wp.ScopedDevice(self._wp_device):
+    with wp.ScopedDevice(self._wp_device):
+      if self._use_cuda_graph and self._raycast_graph is not None:
         wp.capture_launch(self._raycast_graph)
-    else:
-      self._raycast_direct()
+      else:
+        self._raycast_direct()
 
     self._distances = wp.to_torch(self._ray_dist)
     self._normals_w = wp.to_torch(self._ray_normal).view(num_envs, self._num_rays, 3)

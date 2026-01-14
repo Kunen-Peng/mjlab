@@ -8,6 +8,7 @@ from mjlab.envs import ManagerBasedRlEnvCfg
 from mjlab.envs import mdp as envs_mdp
 from mjlab.envs.mdp.actions import JointPositionActionCfg
 from mjlab.managers.event_manager import EventTermCfg
+from mjlab.managers.observation_manager import ObservationTermCfg
 from mjlab.sensor import (
   ContactMatch,
   ContactSensorCfg,
@@ -16,6 +17,7 @@ from mjlab.sensor import (
   RayCastSensorCfg,
 )
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
+from mjlab.utils.noise import UniformNoiseCfg as Unoise
 
 
 def unitree_go1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
@@ -27,19 +29,20 @@ def unitree_go1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
 
   cfg.scene.entities = {"robot": get_go1_robot_cfg()}
 
-  height_scanner = RayCastSensorCfg(
-    name="terrain_scan",
-    frame=ObjRef(type="body", name="trunk", entity="robot"),
-    ray_alignment="yaw",
-    pattern=GridPatternCfg(size=(0.8, 0.8), resolution=0.2),
-    max_distance=5.0,
-    exclude_parent_body=True,
-    debug_vis=True,
-    viz=RayCastSensorCfg.VizCfg(
-      show_normals=True,
+  sensors = (
+    RayCastSensorCfg(
+      name="terrain_scan",
+      frame=ObjRef(type="body", name="trunk", entity="robot"),
+      ray_alignment="yaw",
+      pattern=GridPatternCfg(size=(1.6, 1.0), resolution=0.1),
+      max_distance=1.0,
+      exclude_parent_body=True,
+      debug_vis=True,
+      viz=RayCastSensorCfg.VizCfg(
+        show_normals=True,
+      ),
     ),
   )
-  cfg.scene.sensors += (height_scanner,)
 
   foot_names = ("FR", "FL", "RR", "RL")
   site_names = ("FR", "FL", "RR", "RL")
@@ -69,7 +72,8 @@ def unitree_go1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     reduce="none",
     num_slots=1,
   )
-  cfg.scene.sensors += (feet_ground_cfg, nonfoot_ground_cfg)
+  sensors += (feet_ground_cfg, nonfoot_ground_cfg)
+  cfg.scene.sensors = sensors
 
   if cfg.scene.terrain is not None and cfg.scene.terrain.terrain_generator is not None:
     cfg.scene.terrain.terrain_generator.curriculum = True
@@ -85,6 +89,16 @@ def unitree_go1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
   cfg.observations["critic"].terms["foot_height"].params[
     "asset_cfg"
   ].site_names = site_names
+
+  cfg.observations["policy"].terms["height_scan"] = ObservationTermCfg(
+    func=envs_mdp.height_scan,
+    params={"sensor_name": "terrain_scan"},
+    noise=Unoise(n_min=-0.1, n_max=0.1),
+  )
+  cfg.observations["critic"].terms["height_scan"] = ObservationTermCfg(
+    func=envs_mdp.height_scan,
+    params={"sensor_name": "terrain_scan"},
+  )
 
   cfg.events["foot_friction"].params["asset_cfg"].geom_names = geom_names
   cfg.events["base_com"].params["asset_cfg"].body_names = ("trunk",)
