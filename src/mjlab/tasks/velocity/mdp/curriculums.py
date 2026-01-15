@@ -32,10 +32,10 @@ def terrain_levels_vel(
   command_name: str,
   lin_reward_name: str = "track_linear_velocity",
   ang_reward_name: str = "track_angular_velocity",
-  threshold_up: float = 1.0,
-  threshold_down: float = 0.3,
+  threshold_up: float = 0.5,
+  threshold_down: float = 0.15,
 ) -> torch.Tensor:
-  """Update terrain levels based on episode-averaged velocity tracking rewards.
+  """Update terrain levels based on episode-averaged raw (unweighted) rewards.
 
   Args:
     env: The environment instance.
@@ -43,10 +43,8 @@ def terrain_levels_vel(
     command_name: Name of the velocity command term (unused, kept for compatibility).
     lin_reward_name: Name of the linear velocity tracking reward term.
     ang_reward_name: Name of the angular velocity tracking reward term.
-    threshold_up: Average reward above which to progress to harder terrain.
-      With default weight=2.0, perfect tracking gives ~2.0, so 1.0 ≈ 50% tracking.
-    threshold_down: Average reward below which to regress to easier terrain.
-      With default weight=2.0, 0.3 ≈ 15% tracking.
+    threshold_up: Raw reward above which to progress (0.5 ≈ 50% tracking quality).
+    threshold_down: Raw reward below which to regress (0.15 ≈ 15% tracking quality).
   """
   del command_name  # Unused, kept for config compatibility.
 
@@ -55,15 +53,18 @@ def terrain_levels_vel(
   terrain_generator = terrain.cfg.terrain_generator
   assert terrain_generator is not None
 
-  # Get episode-accumulated rewards (available before reset clears them).
+  # Get episode-accumulated rewards and normalize by weight to get raw rewards.
+  lin_weight = env.reward_manager.get_term_cfg(lin_reward_name).weight
+  ang_weight = env.reward_manager.get_term_cfg(ang_reward_name).weight
+
   lin_sum = env.reward_manager._episode_sums[lin_reward_name][env_ids]
   ang_sum = env.reward_manager._episode_sums[ang_reward_name][env_ids]
 
-  # Normalize by episode length to get average reward.
-  avg_lin = lin_sum / env.max_episode_length_s
-  avg_ang = ang_sum / env.max_episode_length_s
+  # Normalize by episode length AND weight to get average raw reward.
+  avg_lin = lin_sum / env.max_episode_length_s / lin_weight
+  avg_ang = ang_sum / env.max_episode_length_s / ang_weight
 
-  # Progress based on average tracking reward.
+  # Progress based on average raw tracking reward.
   move_up = (avg_lin > threshold_up) & (avg_ang > threshold_up)
   move_down = (avg_lin < threshold_down) | (avg_ang < threshold_down)
   move_down = move_down & ~move_up

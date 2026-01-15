@@ -25,13 +25,23 @@ def track_linear_velocity(
   std: float,
   command_name: str,
   asset_cfg: SceneEntityCfg = _DEFAULT_ASSET_CFG,
+  z_std: float | None = None,
 ) -> torch.Tensor:
-  """Reward for tracking the commanded base linear velocity (XY only)."""
+  """Reward for tracking the commanded base linear velocity.
+
+  Args:
+    std: Standard deviation for XY velocity error.
+    z_std: Standard deviation for Z velocity penalty. If None, no Z penalty.
+      Use a larger value (e.g., 1.0) for rough terrain to allow some vertical motion.
+  """
   asset: Entity = env.scene[asset_cfg.name]
   command = env.command_manager.get_command(command_name)
   assert command is not None, f"Command '{command_name}' not found."
   actual = asset.data.root_link_lin_vel_b
   xy_error = torch.sum(torch.square(command[:, :2] - actual[:, :2]), dim=1)
+  if z_std is not None:
+    z_error = torch.square(actual[:, 2])
+    return torch.exp(-xy_error / std**2) * torch.exp(-z_error / z_std**2)
   return torch.exp(-xy_error / std**2)
 
 
