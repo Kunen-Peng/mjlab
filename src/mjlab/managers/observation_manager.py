@@ -133,6 +133,17 @@ class ObservationManager(ManagerBase):
 
     self._obs_buffer: dict[str, torch.Tensor | dict[str, torch.Tensor]] | None = None
 
+    # Track max abs observation per group for diagnostics.
+    self._obs_abs_max: dict[str, float] = {
+      name: 0.0 for name in self._group_obs_term_names
+    }
+    self._obs_has_nan: dict[str, bool] = {
+      name: False for name in self._group_obs_term_names
+    }
+    self._obs_has_inf: dict[str, bool] = {
+      name: False for name in self._group_obs_term_names
+    }
+
   def __str__(self) -> str:
     msg = f"<ObservationManager> contains {len(self._group_obs_term_names)} groups.\n"
     for group_name, group_dim in self._group_obs_dim.items():
@@ -242,19 +253,18 @@ class ObservationManager(ManagerBase):
     for mod in self._group_obs_class_instances.values():
       mod.reset(env_ids=env_ids)
 
-    # Log observation diagnostics.
+    # Return diagnostics and clear tracking.
     extras: dict[str, float] = {}
-    obs = self.compute()
-    for group_name, group_obs in obs.items():
-      if isinstance(group_obs, torch.Tensor):
-        abs_max = group_obs.abs().max().item()
-        has_nan = torch.isnan(group_obs).any().item()
-        has_inf = torch.isinf(group_obs).any().item()
-        extras[f"Obs/{group_name}_abs_max"] = abs_max
-        if has_nan:
-          extras[f"Obs/{group_name}_has_nan"] = 1.0
-        if has_inf:
-          extras[f"Obs/{group_name}_has_inf"] = 1.0
+    for group_name in self._group_obs_term_names:
+      extras[f"Obs/{group_name}_abs_max"] = self._obs_abs_max[group_name]
+      if self._obs_has_nan[group_name]:
+        extras[f"Obs/{group_name}_has_nan"] = 1.0
+      if self._obs_has_inf[group_name]:
+        extras[f"Obs/{group_name}_has_inf"] = 1.0
+      # Reset tracking for next episode.
+      self._obs_abs_max[group_name] = 0.0
+      self._obs_has_nan[group_name] = False
+      self._obs_has_inf[group_name] = False
     return extras
 
   def compute(
@@ -268,7 +278,14 @@ class ObservationManager(ManagerBase):
 
     obs_buffer: dict[str, torch.Tensor | dict[str, torch.Tensor]] = dict()
     for group_name in self._group_obs_term_names:
-      obs_buffer[group_name] = self.compute_group(group_name, update_history)
+      group_obs = self.compute_group(group_name, update_history)
+      obs_buffer[group_name] = group_obs
+      # Track diagnostics for this group.
+      if isinstance(group_obs, torch.Tensor):
+        abs_max = group_obs.abs().max().item()
+        self._obs_abs_max[group_name] = max(self._obs_abs_max[group_name], abs_max)
+        self._obs_has_nan[group_name] |= bool(torch.isnan(group_obs).any())
+        self._obs_has_inf[group_name] |= bool(torch.isinf(group_obs).any())
     self._obs_buffer = obs_buffer
     return obs_buffer
 
