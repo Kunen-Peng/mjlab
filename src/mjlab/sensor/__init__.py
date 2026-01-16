@@ -14,3 +14,9 @@ from mjlab.sensor.raycast_sensor import RayCastSensor as RayCastSensor
 from mjlab.sensor.raycast_sensor import RayCastSensorCfg as RayCastSensorCfg
 from mjlab.sensor.sensor import Sensor as Sensor
 from mjlab.sensor.sensor import SensorCfg as SensorCfg
+from mjlab.sensor.warp_mesh_raycast_sensor import (
+  WarpRayCastSensor as WarpRayCastSensor,
+)
+from mjlab.sensor.warp_mesh_raycast_sensor import (
+  WarpRayCastSensorCfg as WarpRayCastSensorCfg,
+)

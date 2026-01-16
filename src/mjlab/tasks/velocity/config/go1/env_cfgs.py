@@ -14,6 +14,7 @@ from mjlab.sensor import (
   GridPatternCfg,
   ObjRef,
   RayCastSensorCfg,
+  WarpRayCastSensorCfg,
 )
 from mjlab.tasks.velocity import mdp
 from mjlab.tasks.velocity.velocity_env_cfg import make_velocity_env_cfg
@@ -168,5 +169,135 @@ def unitree_go1_flat_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
 
   # Disable terrain curriculum.
   del cfg.curriculum["terrain_levels"]
+
+  return cfg
+
+
+def unitree_go1_rough_warp_ray_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
+  """Create Unitree Go1 rough terrain velocity configuration with Warp RayCast sensor."""
+  cfg = make_velocity_env_cfg()
+
+  cfg.sim.mujoco.ccd_iterations = 500
+  cfg.sim.contact_sensor_maxmatch = 500
+
+  cfg.scene.entities = {"robot": get_go1_robot_cfg()}
+
+  # Use WarpRayCastSensorCfg instead of RayCastSensorCfg
+  sensors = (
+    WarpRayCastSensorCfg(
+      name="terrain_scan",
+      frame=ObjRef(type="body", name="trunk", entity="robot"),
+      ray_alignment="yaw",
+      pattern=GridPatternCfg(size=(1.6, 1.0), resolution=0.1),
+      max_distance=5.0,
+      exclude_parent_body=True,
+      debug_vis=True,
+      viz=WarpRayCastSensorCfg.VizCfg(
+        show_normals=True,
+      ),
+    ),
+  )
+
+  foot_names = ("FR", "FL", "RR", "RL")
+  site_names = ("FR", "FL", "RR", "RL")
+  geom_names = tuple(f"{name}_foot_collision" for name in foot_names)
+
+  feet_ground_cfg = ContactSensorCfg(
+    name="feet_ground_contact",
+    primary=ContactMatch(mode="geom", pattern=geom_names, entity="robot"),
+    secondary=ContactMatch(mode="body", pattern="terrain"),
+    fields=("found", "force"),
+    reduce="netforce",
+    num_slots=1,
+    track_air_time=True,
+  )
+  base_ground_cfg = ContactSensorCfg(
+    name="base_ground_touch",
+    primary=ContactMatch(
+      mode="geom",
+      entity="robot",
+      pattern="trunk_collision",
+    ),
+    secondary=ContactMatch(mode="body", pattern="terrain"),
+    fields=("found",),
+    reduce="none",
+    num_slots=1,
+  )
+  sensors += (feet_ground_cfg, base_ground_cfg)
+  cfg.scene.sensors = sensors
+
+  if cfg.scene.terrain is not None and cfg.scene.terrain.terrain_generator is not None:
+    cfg.scene.terrain.terrain_generator.curriculum = True
+
+  joint_pos_action = cfg.actions["joint_pos"]
+  assert isinstance(joint_pos_action, JointPositionActionCfg)
+  joint_pos_action.scale = GO1_ACTION_SCALE
+
+  cfg.viewer.body_name = "trunk"
+  cfg.viewer.distance = 1.5
+  cfg.viewer.elevation = -10.0
+
+  cfg.observations["critic"].terms["foot_height"].params[
+    "asset_cfg"
+  ].site_names = site_names
+
+  cfg.observations["policy"].terms["height_scan"] = ObservationTermCfg(
+    func=envs_mdp.height_scan,
+    params={"sensor_name": "terrain_scan"},
+    noise=Unoise(n_min=-0.1, n_max=0.1),
+    clip=(-1.0, 1.0),
+  )
+  cfg.observations["critic"].terms["height_scan"] = ObservationTermCfg(
+    func=envs_mdp.height_scan,
+    params={"sensor_name": "terrain_scan"},
+    clip=(-1.0, 1.0),
+  )
+
+  cfg.events["foot_friction"].params["asset_cfg"].geom_names = geom_names
+  cfg.events["base_com"].params["asset_cfg"].body_names = ("trunk",)
+
+  cfg.rewards["pose"].params["std_standing"] = {
+    r".*(FR|FL|RR|RL)_(hip|thigh)_joint.*": 0.05,
+    r".*(FR|FL|RR|RL)_calf_joint.*": 0.1,
+  }
+  cfg.rewards["pose"].params["std_walking"] = {
+    r".*(FR|FL|RR|RL)_(hip|thigh)_joint.*": 0.3,
+    r".*(FR|FL|RR|RL)_calf_joint.*": 0.6,
+  }
+  cfg.rewards["pose"].params["std_running"] = {
+    r".*(FR|FL|RR|RL)_(hip|thigh)_joint.*": 0.3,
+    r".*(FR|FL|RR|RL)_calf_joint.*": 0.6,
+  }
+
+  cfg.rewards["upright"].params["asset_cfg"].body_names = ("trunk",)
+  cfg.rewards["body_ang_vel"].params["asset_cfg"].body_names = ("trunk",)
+
+  for reward_name in ["foot_clearance", "foot_swing_height", "foot_slip"]:
+    cfg.rewards[reward_name].params["asset_cfg"].site_names = site_names
+
+  cfg.rewards["body_ang_vel"].weight = 0.0
+  cfg.rewards["angular_momentum"].weight = 0.0
+  cfg.rewards["air_time"].weight = 0.0
+
+  cfg.terminations["illegal_contact"] = TerminationTermCfg(
+    func=mdp.illegal_contact,
+    params={"sensor_name": base_ground_cfg.name},
+  )
+
+  if play:
+    cfg.episode_length_s = int(1e9)
+    cfg.observations["policy"].enable_corruption = False
+    cfg.events.pop("push_robot", None)
+    cfg.events["randomize_terrain"] = EventTermCfg(
+      func=envs_mdp.randomize_terrain,
+      mode="reset",
+      params={},
+    )
+    if cfg.scene.terrain is not None:
+      if cfg.scene.terrain.terrain_generator is not None:
+        cfg.scene.terrain.terrain_generator.curriculum = False
+        cfg.scene.terrain.terrain_generator.num_cols = 5
+        cfg.scene.terrain.terrain_generator.num_rows = 5
+        cfg.scene.terrain.terrain_generator.border_width = 10.0
 
   return cfg

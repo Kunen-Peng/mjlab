@@ -42,3 +42,16 @@ def foot_contact_forces(env: ManagerBasedRlEnv, sensor_name: str) -> torch.Tenso
   assert sensor_data.force is not None
   forces_flat = sensor_data.force.flatten(start_dim=1)  # [B, N*3]
   return torch.sign(forces_flat) * torch.log1p(torch.abs(forces_flat))
+
+
+def height_scan_warp_mesh(
+  env: ManagerBasedRlEnv, sensor_name: str, offset: float = 0.0
+) -> torch.Tensor:
+  from mjlab.sensor import WarpRayCastSensor
+
+  sensor: WarpRayCastSensor = env.scene[sensor_name]
+  heights = (
+    sensor.data.pos_w[:, 2].unsqueeze(1) - sensor.data.hit_pos_w[..., 2] - offset
+  )
+  heights[sensor.data.distances < 0] = float("-inf")
+  return heights
