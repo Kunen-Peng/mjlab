@@ -131,6 +131,15 @@ class ActionManager(ManagerBase):
     return self._terms[name]
 
   def reset(self, env_ids: torch.Tensor | slice | None = None) -> dict[str, float]:
+    # Log action diagnostics before resetting.
+    extras: dict[str, float] = {}
+    abs_max = self._action.abs().max().item()
+    extras["Action/abs_max"] = abs_max
+    if torch.isnan(self._action).any().item():
+      extras["Action/has_nan"] = 1.0
+    if torch.isinf(self._action).any().item():
+      extras["Action/has_inf"] = 1.0
+
     if env_ids is None:
       env_ids = slice(None)
     # Reset action history.
@@ -140,7 +149,7 @@ class ActionManager(ManagerBase):
     # Reset action terms.
     for term in self._terms.values():
       term.reset(env_ids=env_ids)
-    return {}
+    return extras
 
   def process_action(self, action: torch.Tensor) -> None:
     if self.total_action_dim != action.shape[1]:

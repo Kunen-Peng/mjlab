@@ -171,6 +171,7 @@ class Actuator(ABC, Generic[ActuatorCfgT]):
       self._target_ids_list, dtype=torch.long, device=device
     )
     ctrl_ids_list = [act.id for act in self._mjs_actuators]
+    print(f"ctrl_ids_list: {ctrl_ids_list}")
     self._ctrl_ids = torch.tensor(ctrl_ids_list, dtype=torch.long, device=device)
 
     # Pre-allocate zeros for SITE transmission type to avoid repeated allocations.
