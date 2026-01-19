@@ -280,12 +280,19 @@ class ObservationManager(ManagerBase):
     for group_name in self._group_obs_term_names:
       group_obs = self.compute_group(group_name, update_history)
       obs_buffer[group_name] = group_obs
+
       # Track diagnostics for this group.
+      tensor_values: list[torch.Tensor] = []
       if isinstance(group_obs, torch.Tensor):
-        abs_max = group_obs.abs().max().item()
+        tensor_values = [group_obs]
+      else:
+        tensor_values = list(group_obs.values())
+
+      if tensor_values:
+        abs_max = max(t.abs().max().item() for t in tensor_values)
         self._obs_abs_max[group_name] = max(self._obs_abs_max[group_name], abs_max)
-        self._obs_has_nan[group_name] |= bool(torch.isnan(group_obs).any())
-        self._obs_has_inf[group_name] |= bool(torch.isinf(group_obs).any())
+        self._obs_has_nan[group_name] |= any(bool(torch.isnan(t).any()) for t in tensor_values)
+        self._obs_has_inf[group_name] |= any(bool(torch.isinf(t).any()) for t in tensor_values)
     self._obs_buffer = obs_buffer
     return obs_buffer
 
