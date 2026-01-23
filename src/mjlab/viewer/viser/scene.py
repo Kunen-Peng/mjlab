@@ -120,13 +120,14 @@ class ViserMujocoScene(DebugVisualizer):
 
   # Debug visualization (arrows, ghosts, frames).
   debug_visualization_enabled: bool = False
+  show_all_envs: bool = False
   _scene_offset: np.ndarray = field(default_factory=lambda: np.zeros(3), init=False)
   _queued_arrows: list[
     tuple[np.ndarray, np.ndarray, tuple[float, float, float, float], float]
   ] = field(default_factory=list, init=False)
   _arrow_shaft_handle: viser.BatchedMeshHandle | None = field(default=None, init=False)
   _arrow_head_handle: viser.BatchedMeshHandle | None = field(default=None, init=False)
-  _ghost_handles: dict[int, viser.SceneNodeHandle] = field(
+  _ghost_handles: dict[tuple[str, int], viser.SceneNodeHandle] = field(
     default_factory=dict, init=False
   )
   _ghost_meshes: dict[int, dict[int, trimesh.Trimesh]] = field(
@@ -323,19 +324,34 @@ class ViserMujocoScene(DebugVisualizer):
 
       # Debug visualization controls (only show if requested).
       if show_debug_viz_control:
-        cb_debug_vis = self.server.gui.add_checkbox(
-          "Debug visualization",
-          initial_value=self.debug_visualization_enabled,
-          hint="Show debug arrows and ghost meshes.",
-        )
+        with self.server.gui.add_folder("Debug Viz"):
+          cb_debug_vis = self.server.gui.add_checkbox(
+            "Enabled",
+            initial_value=self.debug_visualization_enabled,
+            hint="Show debug arrows and ghost meshes.",
+          )
 
-        @cb_debug_vis.on_update
-        def _(_) -> None:
-          self.debug_visualization_enabled = cb_debug_vis.value
-          # Clear visualizer if hiding.
-          if not self.debug_visualization_enabled:
-            self.clear_debug_all()
-          self._request_update()
+          @cb_debug_vis.on_update
+          def _(_) -> None:
+            self.debug_visualization_enabled = cb_debug_vis.value
+            # Clear visualizer if hiding.
+            if not self.debug_visualization_enabled:
+              self.clear_debug_all()
+            self._request_update()
+
+          cb_show_all_envs = self.server.gui.add_checkbox(
+            "All envs",
+            initial_value=self.show_all_envs,
+            hint="Show debug visualization for all environments.",
+          )
+
+          @cb_show_all_envs.on_update
+          def _(_) -> None:
+            self.show_all_envs = cb_show_all_envs.value
+            # Clear ghosts when switching from all envs to single env
+            if not self.show_all_envs:
+              self.clear_debug_all()
+            self._request_update()
 
       # Contact visualization settings.
       with self.server.gui.add_folder("Contacts"):
@@ -933,13 +949,16 @@ class ViserMujocoScene(DebugVisualizer):
       qpos: Joint positions for the ghost pose
       model: MuJoCo model with pre-configured appearance (geom_rgba for colors)
       alpha: Transparency override
-      label: Optional label for this ghost
+      label: Optional label for this ghost (used to differentiate multiple ghosts)
     """
     if not self.debug_visualization_enabled:
       return
 
     if isinstance(qpos, torch.Tensor):
       qpos = qpos.cpu().numpy()
+
+    # Use label to differentiate ghosts (e.g., for different environments)
+    ghost_prefix = label if label else f"env_{self.env_idx}"
 
     # Use model hash to support models with same structure but different colors
     model_hash = hash((model.ngeom, model.nbody, model.nq))
@@ -970,9 +989,12 @@ class ViserMujocoScene(DebugVisualizer):
       body_pos = self._viz_data.xpos[body_id] + scene_offset
       body_quat = self._mat_to_quat(self._viz_data.xmat[body_id].reshape(3, 3))
 
+      # Key includes ghost_prefix to support multiple ghosts (e.g., for show_all_envs)
+      handle_key = (ghost_prefix, body_id)
+
       # Check if we already have a handle for this body
-      if body_id in self._ghost_handles:
-        handle = self._ghost_handles[body_id]
+      if handle_key in self._ghost_handles:
+        handle = self._ghost_handles[handle_key]
         handle.wxyz = body_quat
         handle.position = body_pos
       else:
@@ -1005,7 +1027,7 @@ class ViserMujocoScene(DebugVisualizer):
           combined_mesh = self._ghost_meshes[model_hash][body_id]
 
         body_name = get_body_name(model, body_id)
-        handle_name = f"/debug/env_{self.env_idx}/ghost/body_{body_name}"
+        handle_name = f"/debug/{ghost_prefix}/ghost/body_{body_name}"
 
         # Extract color from geom (convert RGBA 0-1 to RGB 0-255)
         rgba = model.geom_rgba[geom_indices[0]].copy()
@@ -1022,7 +1044,7 @@ class ViserMujocoScene(DebugVisualizer):
           cast_shadow=False,
           receive_shadow=False,
         )
-        self._ghost_handles[body_id] = handle
+        self._ghost_handles[handle_key] = handle
 
   @override
   def add_frame(
