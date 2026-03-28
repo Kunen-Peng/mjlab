@@ -59,7 +59,7 @@
     <link rel="prev" title="mjlab.entity" href="entity.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="Mar 01, 2026"/>
+    <meta name="docbuild:last-update" content="Mar 28, 2026"/>
   </head>
   
   
@@ -178,7 +178,10 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/cartpole.html">Cartpole: Building Your First Environment</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Concepts</span></p>
@@ -212,11 +215,15 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Training &amp; Debugging</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../training/rsl_rl.html">Training with RSL-RL</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../training/rsl_rl.html">Training with RSL-RL</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../training/motion_imitation.html">Motion Imitation</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../viewers.html">Viewers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../training/distributed_training.html">Distributed Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../training/cloud.html">Cloud Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../debugging/nan_guard.html">NaN Guard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debugging/export_scene.html">Export Scene</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current nav bd-sidenav">
@@ -774,8 +781,10 @@ document.write(`
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> – The entity’s MjSpec to edit.</p></li>
-<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) controlled by
-this actuator.</p></li>
+<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) as they
+appear in the spec. When the entity’s <code class="docutils literal notranslate"><span class="pre">spec_fn</span></code> uses internal
+<code class="docutils literal notranslate"><span class="pre">MjSpec.attach(prefix=...)</span></code>, these will include the prefix
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;left/elbow&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1012,8 +1021,10 @@ enables direct writes without per-actuator overhead.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> – The entity’s MjSpec to edit.</p></li>
-<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) controlled by
-this actuator.</p></li>
+<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) as they
+appear in the spec. When the entity’s <code class="docutils literal notranslate"><span class="pre">spec_fn</span></code> uses internal
+<code class="docutils literal notranslate"><span class="pre">MjSpec.attach(prefix=...)</span></code>, these will include the prefix
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;left/elbow&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1093,8 +1104,10 @@ properties, namely armature and frictionloss.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> – The entity’s MjSpec to edit.</p></li>
-<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) controlled by
-this actuator.</p></li>
+<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) as they
+appear in the spec. When the entity’s <code class="docutils literal notranslate"><span class="pre">spec_fn</span></code> uses internal
+<code class="docutils literal notranslate"><span class="pre">MjSpec.attach(prefix=...)</span></code>, these will include the prefix
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;left/elbow&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1180,8 +1193,10 @@ properties, namely armature and frictionloss.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> – The entity’s MjSpec to edit.</p></li>
-<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) controlled by
-this actuator.</p></li>
+<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) as they
+appear in the spec. When the entity’s <code class="docutils literal notranslate"><span class="pre">spec_fn</span></code> uses internal
+<code class="docutils literal notranslate"><span class="pre">MjSpec.attach(prefix=...)</span></code>, these will include the prefix
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;left/elbow&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1261,8 +1276,10 @@ frictionloss.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> – The entity’s MjSpec to edit.</p></li>
-<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) controlled by
-this actuator.</p></li>
+<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) as they
+appear in the spec. When the entity’s <code class="docutils literal notranslate"><span class="pre">spec_fn</span></code> uses internal
+<code class="docutils literal notranslate"><span class="pre">MjSpec.attach(prefix=...)</span></code>, these will include the prefix
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;left/elbow&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1585,8 +1602,10 @@ this actuator.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> – The entity’s MjSpec to edit.</p></li>
-<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) controlled by
-this actuator.</p></li>
+<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) as they
+appear in the spec. When the entity’s <code class="docutils literal notranslate"><span class="pre">spec_fn</span></code> uses internal
+<code class="docutils literal notranslate"><span class="pre">MjSpec.attach(prefix=...)</span></code>, these will include the prefix
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;left/elbow&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1821,8 +1840,10 @@ before passing it to the underlying actuator’s compute method.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> – The entity’s MjSpec to edit.</p></li>
-<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) controlled by
-this actuator.</p></li>
+<li><p><strong>target_names</strong> – Names of targets (joints, tendons, or sites) as they
+appear in the spec. When the entity’s <code class="docutils literal notranslate"><span class="pre">spec_fn</span></code> uses internal
+<code class="docutils literal notranslate"><span class="pre">MjSpec.attach(prefix=...)</span></code>, these will include the prefix
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;left/elbow&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -2429,7 +2450,7 @@ By The mjlab Developers
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 01, 2026.
+  Last updated on Mar 28, 2026.
   <br/>
 </p>
   </div>
