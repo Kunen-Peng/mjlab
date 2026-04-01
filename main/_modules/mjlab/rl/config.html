@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="Mar 28, 2026"/>
+    <meta name="docbuild:last-update" content="Apr 01, 2026"/>
   </head>
   
   
@@ -430,8 +430,14 @@ document.write(`
 
 <span class="sd">  ``None`` means deterministic output (use for critic).</span>
 <span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">rnn_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;RNN type (&quot;lstm&quot; or &quot;gru&quot;). When set, class_name should be &quot;RNNModel&quot;.&quot;&quot;&quot;</span>
+  <span class="n">rnn_hidden_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;Hidden state dimension for the RNN.&quot;&quot;&quot;</span>
+  <span class="n">rnn_num_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;Number of stacked RNN layers.&quot;&quot;&quot;</span>
   <span class="n">class_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MLPModel&quot;</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;Model class name resolved by RSL-RL (MLPModel or CNNModel).&quot;&quot;&quot;</span></div>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;Model class name resolved by RSL-RL (MLPModel, CNNModel, or RNNModel).&quot;&quot;&quot;</span></div>
 
 
 
@@ -595,7 +601,7 @@ By The mjlab Developers
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 28, 2026.
+  Last updated on Apr 01, 2026.
   <br/>
 </p>
   </div>

@@ -61,7 +61,7 @@
     <link rel="prev" title="Events" href="events.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="Mar 28, 2026"/>
+    <meta name="docbuild:last-update" content="Apr 01, 2026"/>
   </head>
   
   
@@ -890,26 +890,21 @@ See <a class="reference internal" href="#dr-pseudo-inertia"><span class="std std
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dr.pd_gains</span></code></p></td>
 <td><p>Randomizes stiffness (kp) and damping (kd) together. For
-<code class="docutils literal notranslate"><span class="pre">BuiltinPositionActuator</span></code> and <code class="docutils literal notranslate"><span class="pre">XmlPositionActuator</span></code> it writes to
+<code class="docutils literal notranslate"><span class="pre">BuiltinPositionActuator</span></code> and <code class="docutils literal notranslate"><span class="pre">XmlActuator</span></code> it writes to
 <code class="docutils literal notranslate"><span class="pre">actuator_gainprm</span></code> and <code class="docutils literal notranslate"><span class="pre">actuator_biasprm</span></code>. For
 <code class="docutils literal notranslate"><span class="pre">IdealPdActuator</span></code> it sets gains on the entity directly. All three
-can be wrapped with <code class="docutils literal notranslate"><span class="pre">DelayedActuator</span></code>.</p></td>
+support inline delay fields.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dr.effort_limits</span></code></p></td>
 <td><p>Randomizes actuator force range (<code class="docutils literal notranslate"><span class="pre">actuator_forcerange</span></code>). For
 <code class="docutils literal notranslate"><span class="pre">IdealPdActuator</span></code> also updates the entity’s internal force limit.
-Supports <code class="docutils literal notranslate"><span class="pre">BuiltinPositionActuator</span></code>, <code class="docutils literal notranslate"><span class="pre">XmlPositionActuator</span></code>, and
+Supports <code class="docutils literal notranslate"><span class="pre">BuiltinPositionActuator</span></code>, <code class="docutils literal notranslate"><span class="pre">XmlActuator</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">IdealPdActuator</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dr.encoder_bias</span></code></p></td>
 <td><p>Adds a fixed per-joint bias to position readings, simulating encoder
 calibration errors. Writes to <code class="docutils literal notranslate"><span class="pre">entity.data.encoder_bias</span></code>, not the
 MuJoCo model.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dr.sync_actuator_delays</span></code></p></td>
-<td><p>Samples a single lag value per environment and applies it to all
-<code class="docutils literal notranslate"><span class="pre">DelayedActuator</span></code> instances on the entity, ensuring consistent
-delay across joints.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2017,7 +2012,7 @@ By The mjlab Developers
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 28, 2026.
+  Last updated on Apr 01, 2026.
   <br/>
 </p>
   </div>

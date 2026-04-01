@@ -20,8 +20,6 @@ Added
   with mjlab (:issue:`777`).
 - Added ``margin``, ``gap``, and ``solmix`` fields to ``CollisionCfg``
   for per geom contact parameter configuration (:issue:`766`).
-- Added ``DelayedBuiltinActuatorGroup`` that fuses delayed builtin actuators
-  sharing the same delay configuration into a single buffer operation.
 - NaN guard now captures mocap body poses (``mocap_pos``, ``mocap_quat``)
   when the model has mocap bodies, enabling full state reconstruction in
   the dump viewer for fixed-base entities.
@@ -34,10 +32,37 @@ Added
   (:issue:`776`).
 - Added ``RewardBarPanel`` to the Viser viewer, showing horizontal bars for
   each reward term with a running mean over ~1 second (:issue:`800`).
+- Added ``per_substep`` flag to ``MetricsTermCfg`` for evaluating metrics
+  once per physics substep inside the decimation loop. The per substep
+  values are averaged within each environment step, so episode averages
+  remain comparable to regular per step metrics.
+- Added a Checkpoints tab to the Viser play viewer for hot-swapping
+  checkpoints without restarting. Works with local directories and W&B
+  runs (:issue:`751`). Contribution by @omarrayyann.
+- Added ``"segmentation"`` camera data type for per-pixel geom ID output
+  alongside RGB and depth, and a multi-cube goal-conditioned lifting task
+  (``Mjlab-Multi-Cube-Seg-Yam``) that uses it (:issue:`862`).
+  Contribution by @pthangeda.
 
 Changed
 ^^^^^^^
 
+- Actuator delay is now configured inline on any ``ActuatorCfg`` subclass
+  (e.g. ``BuiltinPositionActuatorCfg(..., delay_min_lag=2, delay_max_lag=5)``)
+  instead of wrapping with ``DelayedActuatorCfg``. ``DelayedActuator``,
+  ``DelayedActuatorCfg``, and ``DelayedBuiltinActuatorGroup`` are removed.
+- Removed ``delay_target`` from ``ActuatorCfg``. Delay now always applies to
+  the actuator's ``command_field`` automatically. Multi-target delay
+  (``delay_target=("position", "velocity")``) is no longer supported.
+- ``XmlPositionActuatorCfg``, ``XmlVelocityActuatorCfg``, ``XmlMotorActuatorCfg``,
+  and ``XmlMuscleActuatorCfg`` are replaced by a single ``XmlActuatorCfg`` that auto
+  detects the actuator type from XML. Pass ``command_field=...`` to override detection.
+- Replaced the viser viewer internals with the ``mjviser`` package. Scene
+  creation, mesh conversion, and overlay rendering (contacts, forces,
+  inertia, tendons, joints, frames) are now provided by mjviser. The viewer
+  exposes a new Visualization tab for overlay controls and a Groups tab for
+  geom/site visibility. Debug visualization and warp tensor conversion remain
+  in mjlab's ``MjlabViserScene`` subclass (:issue:`839`).
 - In curriculum terrain mode, each terrain type now gets exactly one column
   (``num_cols`` is set to ``len(sub_terrains)``). The ``proportion`` field
   now controls robot spawning distribution across columns rather than column
@@ -58,6 +83,14 @@ Changed
 Fixed
 ^^^^^
 
+- Fixed ONNX export path resolution in the velocity, manipulation, and
+  tracking runners when a parent directory name contains the word
+  ``"model"`` (:issue:`867`). Contribution by @gokulp01.
+- ``export-scene`` now writes only referenced assets and places them
+  correctly under the output directory. Previously, asset keys containing
+  path traversal could write files outside the output directory, and all
+  spec assets were included regardless of whether the scene XML referenced
+  them (:issue:`858`).
 - ``electrical_power_cost`` now uses ``qfrc_actuator`` (joint space) instead
   of ``actuator_force`` (actuation space) for mechanical power computation.
   Previously the reward was incorrect for actuators with gear ratios other
