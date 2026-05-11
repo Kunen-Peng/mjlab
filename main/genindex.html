@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-    <meta name="docbuild:last-update" content="Apr 01, 2026"/>
+    <meta name="docbuild:last-update" content="May 11, 2026"/>
   </head>
   
   
@@ -188,6 +188,7 @@
 <li class="toctree-l1"><a class="reference internal" href="source/architecture_overview.html">Architecture Overview</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="source/entity/index.html">Entity</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="source/entity/entity_data.html">Entity Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/entity/per_world_mesh.html">Heterogeneous Worlds</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="source/actuators.html">Actuators</a></li>
@@ -211,6 +212,7 @@
 <li class="toctree-l1"><a class="reference internal" href="source/randomization.html">Domain Randomization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/curriculum.html">Curriculum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/recorders.html">Recorders</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Training &amp; Debugging</span></p>
 <ul class="nav bd-sidenav">
@@ -485,7 +487,13 @@ document.write(`
 </li>
         <li><a href="source/api/managers.html#mjlab.managers.NullMetricsManager.__init__">(mjlab.managers.NullMetricsManager method)</a>
 </li>
+        <li><a href="source/api/managers.html#mjlab.managers.NullRecorderManager.__init__">(mjlab.managers.NullRecorderManager method)</a>
+</li>
         <li><a href="source/api/managers.html#mjlab.managers.ObservationManager.__init__">(mjlab.managers.ObservationManager method)</a>
+</li>
+        <li><a href="source/api/managers.html#mjlab.managers.RecorderManager.__init__">(mjlab.managers.RecorderManager method)</a>
+</li>
+        <li><a href="source/api/managers.html#mjlab.managers.RecorderTerm.__init__">(mjlab.managers.RecorderTerm method)</a>
 </li>
         <li><a href="source/api/managers.html#mjlab.managers.RewardManager.__init__">(mjlab.managers.RewardManager method)</a>
 </li>
@@ -578,10 +586,10 @@ document.write(`
 </li>
       <li><a href="source/api/terrains.html#mjlab.terrains.BoxRandomSpreadTerrainCfg.add_floor">add_floor (mjlab.terrains.BoxRandomSpreadTerrainCfg attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/terrains.html#mjlab.terrains.TerrainGeneratorCfg.add_lights">add_lights (mjlab.terrains.TerrainGeneratorCfg attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/rl.html#mjlab.rl.RslRlOnPolicyRunnerCfg.algorithm">algorithm (mjlab.rl.RslRlOnPolicyRunnerCfg attribute)</a>
 </li>
       <li><a href="source/api/terrains.html#mjlab.terrains.HfWaveTerrainCfg.amplitude_range">amplitude_range (mjlab.terrains.HfWaveTerrainCfg attribute)</a>
@@ -611,6 +619,8 @@ document.write(`
       <li><a href="source/api/viewer.html#mjlab.viewer.ViewerConfig.OriginType.ASSET_ROOT">ASSET_ROOT (mjlab.viewer.ViewerConfig.OriginType attribute)</a>
 </li>
       <li><a href="source/api/viewer.html#mjlab.viewer.ViewerConfig.OriginType.AUTO">AUTO (mjlab.viewer.ViewerConfig.OriginType attribute)</a>
+</li>
+      <li><a href="source/api/envs.html#mjlab.envs.ManagerBasedRlEnvCfg.auto_reset">auto_reset (mjlab.envs.ManagerBasedRlEnvCfg attribute)</a>
 </li>
       <li><a href="source/api/viewer.html#mjlab.viewer.ViewerConfig.azimuth">azimuth (mjlab.viewer.ViewerConfig attribute)</a>
 </li>
@@ -846,13 +856,19 @@ document.write(`
 </li>
       <li><a href="source/api/sensor.html#mjlab.sensor.CameraSensorCfg.clone_data">clone_data (mjlab.sensor.CameraSensorCfg attribute)</a>
 </li>
-      <li><a href="source/api/viewer.html#mjlab.viewer.NativeMujocoViewer.close">close() (mjlab.viewer.NativeMujocoViewer method)</a>
+      <li><a href="source/api/managers.html#mjlab.managers.RecorderManager.close">close() (mjlab.managers.RecorderManager method)</a>
 
       <ul>
+        <li><a href="source/api/managers.html#mjlab.managers.RecorderTerm.close">(mjlab.managers.RecorderTerm method)</a>
+</li>
+        <li><a href="source/api/viewer.html#mjlab.viewer.NativeMujocoViewer.close">(mjlab.viewer.NativeMujocoViewer method)</a>
+</li>
         <li><a href="source/api/viewer.html#mjlab.viewer.ViserPlayViewer.close">(mjlab.viewer.ViserPlayViewer method)</a>
 </li>
       </ul></li>
       <li><a href="source/api/rl.html#mjlab.rl.RslRlModelCfg.cnn_cfg">cnn_cfg (mjlab.rl.RslRlModelCfg attribute)</a>
+</li>
+      <li><a href="source/api/scene.html#mjlab.scene.Scene.collect_variant_info">collect_variant_info() (mjlab.scene.Scene method)</a>
 </li>
       <li><a href="source/api/entity.html#mjlab.entity.EntityCfg.collisions">collisions (mjlab.entity.EntityCfg attribute)</a>
 </li>
@@ -880,12 +896,12 @@ document.write(`
 </li>
       <li><a href="source/api/envs.html#mjlab.envs.ManagerBasedRlEnvCfg.commands">commands (mjlab.envs.ManagerBasedRlEnvCfg attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/managers.html#mjlab.managers.CommandTerm">CommandTerm (class in mjlab.managers)</a>
 </li>
       <li><a href="source/api/managers.html#mjlab.managers.CommandTermCfg">CommandTermCfg (class in mjlab.managers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/entity.html#mjlab.entity.Entity.compile">compile() (mjlab.entity.Entity method)</a>
 </li>
       <li><a href="source/api/actuator.html#mjlab.actuator.Actuator.compute">compute() (mjlab.actuator.Actuator method)</a>
@@ -992,6 +1008,8 @@ document.write(`
 
       <ul>
         <li><a href="source/api/sensor.html#mjlab.sensor.RayCastSensorCfg.debug_vis">(mjlab.sensor.RayCastSensorCfg attribute)</a>
+</li>
+        <li><a href="source/api/terrains.html#mjlab.terrains.TerrainEntityCfg.debug_vis">(mjlab.terrains.TerrainEntityCfg attribute)</a>
 </li>
       </ul></li>
       <li><a href="source/api/managers.html#mjlab.managers.EventManager.debug_vis">debug_vis() (mjlab.managers.EventManager method)</a>
@@ -1840,11 +1858,13 @@ document.write(`
 </li>
       <li><a href="source/api/managers.html#mjlab.managers.NullCommandManager">NullCommandManager (class in mjlab.managers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/managers.html#mjlab.managers.NullCurriculumManager">NullCurriculumManager (class in mjlab.managers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/managers.html#mjlab.managers.NullMetricsManager">NullMetricsManager (class in mjlab.managers)</a>
+</li>
+      <li><a href="source/api/managers.html#mjlab.managers.NullRecorderManager">NullRecorderManager (class in mjlab.managers)</a>
 </li>
       <li><a href="source/api/terrains.html#mjlab.terrains.BoxNarrowBeamsTerrainCfg.num_beams">num_beams (mjlab.terrains.BoxNarrowBeamsTerrainCfg attribute)</a>
 </li>
@@ -1936,6 +1956,10 @@ document.write(`
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="source/api/managers.html#mjlab.managers.SceneEntityCfg.pair_ids">pair_ids (mjlab.managers.SceneEntityCfg attribute)</a>
+</li>
+      <li><a href="source/api/managers.html#mjlab.managers.SceneEntityCfg.pair_names">pair_names (mjlab.managers.SceneEntityCfg attribute)</a>
+</li>
       <li><a href="source/api/managers.html#mjlab.managers.ManagerTermBaseCfg.params">params (mjlab.managers.ManagerTermBaseCfg attribute)</a>
 </li>
       <li><a href="source/api/sensor.html#mjlab.sensor.CameraSensorCfg.parent_body">parent_body (mjlab.sensor.CameraSensorCfg attribute)</a>
@@ -1949,6 +1973,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="source/api/managers.html#mjlab.managers.MetricsTermCfg.per_substep">per_substep (mjlab.managers.MetricsTermCfg attribute)</a>
+</li>
+      <li><a href="source/api/sim.html#mjlab.sim.Simulation.per_world_default_fields">per_world_default_fields (mjlab.sim.Simulation property)</a>
 </li>
       <li><a href="source/api/terrains.html#mjlab.terrains.HfPerlinNoiseTerrainCfg.persistence">persistence (mjlab.terrains.HfPerlinNoiseTerrainCfg attribute)</a>
 </li>
@@ -1980,10 +2006,10 @@ document.write(`
         <li><a href="source/api/terrains.html#mjlab.terrains.HfPyramidSlopedTerrainCfg.platform_width">(mjlab.terrains.HfPyramidSlopedTerrainCfg attribute)</a>
 </li>
       </ul></li>
-      <li><a href="source/api/viewer.html#mjlab.viewer.PolicyProtocol">PolicyProtocol (class in mjlab.viewer)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="source/api/viewer.html#mjlab.viewer.PolicyProtocol">PolicyProtocol (class in mjlab.viewer)</a>
+</li>
       <li><a href="source/api/actuator.html#mjlab.actuator.ActuatorCmd.pos">pos (mjlab.actuator.ActuatorCmd attribute)</a>
 
       <ul>
@@ -2021,6 +2047,8 @@ document.write(`
       <li><a href="source/api/managers.html#mjlab.managers.ActionManager.prev_prev_action">prev_prev_action (mjlab.managers.ActionManager property)</a>
 </li>
       <li><a href="source/api/sensor.html#mjlab.sensor.ContactSensorCfg.primary">primary (mjlab.sensor.ContactSensorCfg attribute)</a>
+</li>
+      <li><a href="source/api/sensor.html#mjlab.sensor.ContactSensor.primary_names">primary_names (mjlab.sensor.ContactSensor property)</a>
 </li>
       <li><a href="source/api/actuator.html#mjlab.actuator.BuiltinActuatorGroup.process">process() (mjlab.actuator.BuiltinActuatorGroup static method)</a>
 </li>
@@ -2070,10 +2098,40 @@ document.write(`
 </li>
       <li><a href="source/api/sim.html#mjlab.sim.Simulation.recompute_constants">recompute_constants() (mjlab.sim.Simulation method)</a>
 </li>
+      <li><a href="source/api/managers.html#mjlab.managers.RecorderManager.record_post_reset">record_post_reset() (mjlab.managers.RecorderManager method)</a>
+
+      <ul>
+        <li><a href="source/api/managers.html#mjlab.managers.RecorderTerm.record_post_reset">(mjlab.managers.RecorderTerm method)</a>
+</li>
+      </ul></li>
+      <li><a href="source/api/managers.html#mjlab.managers.RecorderManager.record_post_step">record_post_step() (mjlab.managers.RecorderManager method)</a>
+
+      <ul>
+        <li><a href="source/api/managers.html#mjlab.managers.RecorderTerm.record_post_step">(mjlab.managers.RecorderTerm method)</a>
+</li>
+      </ul></li>
+      <li><a href="source/api/managers.html#mjlab.managers.RecorderManager.record_pre_reset">record_pre_reset() (mjlab.managers.RecorderManager method)</a>
+
+      <ul>
+        <li><a href="source/api/managers.html#mjlab.managers.RecorderTerm.record_pre_reset">(mjlab.managers.RecorderTerm method)</a>
+</li>
+      </ul></li>
+      <li><a href="source/api/managers.html#mjlab.managers.RecorderManager">RecorderManager (class in mjlab.managers)</a>
+</li>
+      <li><a href="source/api/envs.html#mjlab.envs.ManagerBasedRlEnvCfg.recorders">recorders (mjlab.envs.ManagerBasedRlEnvCfg attribute)</a>
+</li>
+      <li><a href="source/api/managers.html#mjlab.managers.RecorderTerm">RecorderTerm (class in mjlab.managers)</a>
+</li>
+      <li><a href="source/api/managers.html#mjlab.managers.RecorderTermCfg">RecorderTermCfg (class in mjlab.managers)</a>
+</li>
       <li><a href="source/api/sensor.html#mjlab.sensor.SensorContext.recreate">recreate() (mjlab.sensor.SensorContext method)</a>
 </li>
-      <li><a href="source/api/sensor.html#mjlab.sensor.ContactSensorCfg.reduce">reduce (mjlab.sensor.ContactSensorCfg attribute)</a>
+      <li><a href="source/api/managers.html#mjlab.managers.MetricsTermCfg.reduce">reduce (mjlab.managers.MetricsTermCfg attribute)</a>
+
+      <ul>
+        <li><a href="source/api/sensor.html#mjlab.sensor.ContactSensorCfg.reduce">(mjlab.sensor.ContactSensorCfg attribute)</a>
 </li>
+      </ul></li>
       <li><a href="source/api/sensor.html#mjlab.sensor.BuiltinSensorCfg.ref">ref (mjlab.sensor.BuiltinSensorCfg attribute)</a>
 </li>
       <li><a href="source/api/tasks.html#mjlab.tasks.registry.register_mjlab_task">register_mjlab_task() (in module mjlab.tasks.registry)</a>
@@ -2122,14 +2180,14 @@ document.write(`
         <li><a href="source/api/sensor.html#mjlab.sensor.Sensor.reset">(mjlab.sensor.Sensor method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/viewer.html#mjlab.viewer.NativeMujocoViewer.reset_environment">reset_environment() (mjlab.viewer.NativeMujocoViewer method)</a>
 
       <ul>
         <li><a href="source/api/viewer.html#mjlab.viewer.ViserPlayViewer.reset_environment">(mjlab.viewer.ViserPlayViewer method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/api/sensor.html#mjlab.sensor.GridPatternCfg.resolution">resolution (mjlab.sensor.GridPatternCfg attribute)</a>
 
       <ul>
@@ -2570,6 +2628,8 @@ document.write(`
 </li>
       <li><a href="source/api/viewer.html#mjlab.viewer.ViewerConfig.OriginType">ViewerConfig.OriginType (class in mjlab.viewer)</a>
 </li>
+      <li><a href="source/api/actuator.html#mjlab.actuator.ActuatorCfg.viscous_damping">viscous_damping (mjlab.actuator.ActuatorCfg attribute)</a>
+</li>
       <li><a href="source/api/viewer.html#mjlab.viewer.ViserPlayViewer">ViserPlayViewer (class in mjlab.viewer)</a>
 </li>
       <li><a href="source/api/sensor.html#mjlab.sensor.RayCastSensorCfg.viz">viz (mjlab.sensor.RayCastSensorCfg attribute)</a>
@@ -2599,6 +2659,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="source/api/viewer.html#mjlab.viewer.ViewerConfig.OriginType.WORLD">WORLD (mjlab.viewer.ViewerConfig.OriginType attribute)</a>
+</li>
+      <li><a href="source/api/sim.html#mjlab.sim.Simulation.world_to_variant">world_to_variant (mjlab.sim.Simulation property)</a>
 </li>
       <li><a href="source/api/scene.html#mjlab.scene.Scene.write">write() (mjlab.scene.Scene method)</a>
 </li>
@@ -2708,7 +2770,7 @@ By The mjlab Developers
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 01, 2026.
+  Last updated on May 11, 2026.
   <br/>
 </p>
   </div>
