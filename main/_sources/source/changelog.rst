@@ -8,6 +8,9 @@ Upcoming version (not yet released)
 Added
 ^^^^^
 
+- Enabled runner-level action clipping for the Unitree Go1 rough velocity task
+  to bound raw policy actions before they enter mjlab's RSL-RL wrapper. This
+  helps contain rare action spikes that can destabilize training.
 - Added ``--log-root`` CLI option to ``train``, ``play``, and ``evaluate``
   scripts for choosing where training logs are stored. Defaults to
   ``logs/rsl_rl`` (unchanged behavior). Useful for directing outputs to a
